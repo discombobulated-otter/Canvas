@@ -145,7 +145,7 @@ const Backendcanvas = ({ save, setSave }) => {
       try {
         const token = await getToken();
         const res = await axios.get(
-          `http://localhost:5000/api/canvas/${user.id}/${projectId}`,
+          `${import.meta.env.VITE_API_URL}/api/canvas/${user.id}/${projectId}`,
           { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
         );
         if (res.data.success && res.data.canvas.canvasData) {
