@@ -29,7 +29,7 @@ const NavBar = ({save,setSave}) => {
           imageUrl: user.imageUrl,
         };
   
-        await axios.post("http://localhost:5000/api/user/sign", payload, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
           headers: {
             Authorization: `Bearer ${token}`
           }
