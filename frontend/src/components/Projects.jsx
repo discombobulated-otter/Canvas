@@ -22,7 +22,7 @@ const Projects = ({ setShowProjects }) => {
       setLoading(true);
       const token = await getToken(); // Fetch token
       try {
-        const response = await axios.get(`{import.meta.env.VITE_API_URL}/api/canvas/${user.id}`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/canvas/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,  // or use Clerk's token
           },
