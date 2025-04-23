@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 
 // CORS configuration
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
 app.use(cors({
   origin: process.env.FRONTEND_URL ,
