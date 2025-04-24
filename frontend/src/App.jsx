@@ -11,8 +11,11 @@ const location = useLocation();
   
   const [save, setSave] = useState(false);
   const enhancedChildren = Children.map(children, (child) =>
-    isValidElement(child) ? cloneElement(child, { key: location.pathname }, { save, setSave }) : child
+    isValidElement(child)
+      ? cloneElement(child, { key: location.pathname, save, setSave })  // move save/setSave here
+      : child
   );
+  
   return (
     
   <div className="w-screen h-screen overflow-hidden">

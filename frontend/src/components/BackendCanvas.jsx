@@ -56,7 +56,7 @@ const Backendcanvas = ({ save, setSave }) => {
                 activeObject.addWithUpdate(options.target);
               } else {
                 // Create new selection with both objects
-                const sel = new fabric.ActiveSelection([activeObject, options.target], {
+                const sel = new ActiveSelection([activeObject, options.target], {
                   canvas: canvas
                 });
                 canvas.setActiveObject(sel);
@@ -492,7 +492,7 @@ const Backendcanvas = ({ save, setSave }) => {
         className="flex-1 w-[80vw] h-full flex relative justify-center items-end  bg-radial from-[#A2C2DD] to-[#9DB1DF] p-2"
       >
        
-          <canvas id="main-canvas" className="w-full  border-2 shadow-2xl rounded-xl" />
+          <canvas id="main-canvas" className=" rounded-xl" />
      
       {save&&<SaveCanvas save={save} setSave={setSave} canvasData={ canvasRef.current?.toJSON()}/>}
       </div>

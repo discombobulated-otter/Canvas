@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas, Rect, Circle, Triangle, Line, Textbox, PatternBrush, PencilBrush } from "fabric";
+import { Canvas, Rect, Circle, Triangle, Line, Textbox, PencilBrush, ActiveSelection } from "fabric";
 import { CiPen, CiText } from "react-icons/ci";
 import { FaCircle, FaShapes, FaSquare, FaHandPaper, FaDownload, FaTrash, FaSave } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 import { PiLineSegmentFill } from "react-icons/pi";
 import { SketchPicker } from "react-color";
-import axios from 'axios';
-import { useAuth, useSession, useUser } from "@clerk/clerk-react"
+import {  useSession, useUser } from "@clerk/clerk-react"
 import SaveCanvas from "./SaveCanvas";
-import { easeIn, motion } from "framer-motion"
 import { useNavigate } from "react-router-dom";
 
+import { motion } from 'framer-motion';
 const CanvasComp = ({ save, setSave }) => {
   const canvasRef = useRef(null);
   const [activeTool, setActiveTool] = useState(null);
@@ -19,15 +18,11 @@ const CanvasComp = ({ save, setSave }) => {
   const [isMoving, setIsMoving] = useState(false);
   const boxRef = useRef();
   const [showDeleteButton, setShowDeleteButton] = useState(false);
-  const { user } = useUser();
-  console.log(user)
-  const navigate = useNavigate();
+ 
+  const { user } = useUser();  
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/', { replace: true });
-    }
-  }, [user, navigate]);
+
+  console.log(user)
   useEffect(() => {
     const boxWidth = boxRef.current.clientWidth;
     const boxHeight = boxRef.current.clientHeight;
@@ -67,7 +62,7 @@ const CanvasComp = ({ save, setSave }) => {
               activeObject.addWithUpdate(options.target);
             } else {
               // Create new selection with both objects
-              const sel = new fabric.ActiveSelection([activeObject, options.target], {
+              const sel = new ActiveSelection([activeObject, options.target], {
                 canvas: canvas
               });
               canvas.setActiveObject(sel);

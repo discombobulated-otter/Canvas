@@ -18,11 +18,10 @@ const PORT = process.env.PORT || 5000;
 console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL ,
+  origin: process.env.FRONTEND_URL, // e.g. http://localhost:5173
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
