@@ -34,7 +34,7 @@ const NavBar = ({save,setSave}) => {
             Authorization: `Bearer ${token}`
           }
         });
-        console.log(ressponse);
+        console.log(response);
       } catch (err) {
         console.error("Failed to sync user:", err);
       }
