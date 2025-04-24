@@ -29,11 +29,12 @@ const NavBar = ({save,setSave}) => {
           imageUrl: user.imageUrl,
         };
   
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
+        const response=await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
+        console.log(ressponse);
       } catch (err) {
         console.error("Failed to sync user:", err);
       }
