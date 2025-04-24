@@ -31,11 +31,13 @@ const NavBar = ({ save, setSave }) => {
           email: user.primaryEmailAddress?.emailAddress,
           imageUrl: user.imageUrl,
         };
-
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
+  
+        const response=await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
-        console.log("User synced successfully!", response);
+        console.log(response);
       } catch (err) {
         console.error("Failed to sync user:", err);
       }
