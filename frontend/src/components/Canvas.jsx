@@ -342,15 +342,9 @@ const CanvasComp = ({ save, setSave }) => {
        {!open &&<FaBars onClick={()=>{
             setopen(true)
            }} className="absolute left-2 top-1 z-50" size={24} style={{ cursor: "pointer" }} />}
-           {open && <FaTimes
-            size={24}
-            onClick={()=>{
-            setopen(false)
-           }} className="absolute left-1 top-0.5 z-50"
-            style={{ cursor: "pointer", position: "absolute", top: 10, right: 10 }}
-          />}
+           
       {/* Left Sidebar */}
-      {open&& <div className="w-[20vw] z-30 absolute h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
+      {open&& <div className="w-[20vw] z-50 absolute h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
              {/* Main Tools */}
              <div className="flex flex-col h-[45vh] items-center justify-evenly">
                <button
@@ -477,10 +471,18 @@ const CanvasComp = ({ save, setSave }) => {
                </div>
              </div>
            </div>}
-
+{open && <FaTimes
+            size={24}
+            color="red"
+            onClick={()=>{
+            setopen(false)
+            toggleTool(null)
+           }} className="absolute  left-1 top-0.5 z-50"
+            style={{ cursor: "pointer", position: "absolute", top: 10, right: 10 }}
+          />}
       {/* Shapes Panel */}
       {activeTool === "shapes" && (
-        <div className="w-20 h-full absolute right-0 z-30 sm:relative flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
+        <div className="w-20 h-full absolute right-0 z-50 sm:relative flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
           <button
             onClick={addRect}
             className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${selectedShape?.type === "rect" ? "bg-blue-600" : "bg-gray-800"

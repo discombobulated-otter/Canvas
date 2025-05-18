@@ -350,14 +350,17 @@ const url = `${import.meta.env.VITE_API_FRONTEND_URL}/joinCanvas/${user.id}/${pr
      {!open &&<FaBars onClick={()=>{
       setopen(true)
      }} className="absolute left-2 top-1 z-50" size={24} style={{ cursor: "pointer" }} />}
-     {open && <FaTimes
-      size={24}
-      onClick={()=>{
-      setopen(false)
-     }} className="absolute   z-50"
-    />}
+     
       {/* Left Sidebar */}
-     {open&& <div className="w-[20vw] z-30 absolute h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
+     {open&& <div className="w-[20vw]   absolute z-50 h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
+      {open && <FaTimes
+      size={24}
+      color="red"
+      onClick={()=>{
+      setopen(false);
+      toggleTool(null)
+     }} className="absolute  left-2 top-1"
+    />}
         {/* Main Tools */}
         <div className="flex flex-col h-[45vh] items-center justify-evenly">
           <button
