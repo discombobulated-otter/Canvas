@@ -1,10 +1,12 @@
 import handler from "../controllers/user.controller.js";
-import SaveCanvas, { GetAllCanvas } from "../controllers/canvas.controller.js";
+
 import { check } from 'express-validator';
 import {verifyClerkAuth} from "../middewares/authenticate.js"
 import express from 'express';
 import { requireAuth } from "@clerk/express";
 import handleValidation from "../middewares/handleValidation.js";
+
+import {SaveCanvas ,GetAllCanvas } from "../controllers/canvas.controller.js";
 
 const router = express.Router();
 

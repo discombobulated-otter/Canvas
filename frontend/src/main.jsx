@@ -10,6 +10,7 @@ import CanvasComp from './components/Canvas.jsx';
 import Backendcanvas from './components/BackendCanvas.jsx';
 import JoinCanvas from './components/JoinCanvas.jsx';
 import { AnimatePresence } from 'framer-motion';
+import { SocketProvider } from './contextProvider/SocketProvider.jsx';
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 console.log(PUBLISHABLE_KEY);
 
@@ -18,17 +19,27 @@ if (!PUBLISHABLE_KEY) {
 }
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-   <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" >
+    <SocketProvider>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" >
 
-   <Router>
-    <Routes>
-      <Route path='/' element={<App><Home/></App>}/>
-      <Route path='/canvas' element={<App><CanvasComp/></App>}/>
-      <Route path='/project/:id' element={<App><Backendcanvas /></App>}/>
-      <Route path='/joinCanvas' element={<App><JoinCanvas /></App>}/>
-    </Routes>
-   </Router>
-   
+      <Router>
+        <Routes>
+          <Route path='/' element={<App><Home /></App>} />
+          <Route path='/canvas' element={<App><CanvasComp /></App>} />
+          <Route path='/project/:id' element={<App><Backendcanvas /></App>} />
+          <Route
+            path="/joinCanvas/:userId/:projectId"
+            element={
+              <App>
+                <JoinCanvas />
+              </App>
+            }
+          />
+
+        </Routes>
+      </Router>
+
     </ClerkProvider>
+    </SocketProvider>
   </StrictMode>,
 )

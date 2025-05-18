@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Canvas, Rect, Circle, Triangle, Line, Textbox, PencilBrush, ActiveSelection } from "fabric";
 import { CiPen, CiText } from "react-icons/ci";
-import { FaCircle, FaShapes, FaSquare, FaHandPaper, FaDownload, FaTrash, FaSave } from "react-icons/fa";
+import { FaCircle, FaShapes, FaSquare, FaHandPaper, FaDownload, FaTrash, FaSave, FaBars, FaTimes } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 import { PiLineSegmentFill } from "react-icons/pi";
 import { SketchPicker } from "react-color";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useAuth, useUser } from "@clerk/clerk-react";
-import SaveCanvas from "./SaveCanvas";
+import SaveCanvas from "./SaveCanvas.jsx";
 
 const Backendcanvas = ({ save, setSave }) => {
   const canvasRef = useRef(null);
@@ -16,6 +16,7 @@ const Backendcanvas = ({ save, setSave }) => {
   const [activeTool, setActiveTool] = useState(null);
   const [selectedColor, setSelectedColor] = useState("#ff0000");
   const [selectedShape, setSelectedShape] = useState(null);
+  const [open, setopen] = useState(false)
   const [isMoving, setIsMoving] = useState(false);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const projectId = useParams().id;
@@ -120,16 +121,41 @@ const Backendcanvas = ({ save, setSave }) => {
   
       // Handle window resize
       const handleResize = () => {
-        if (canvasRef.current) {
-          const newWidth = boxRef.current.clientWidth * 0.6;
-          const newHeight = boxRef.current.clientHeight * 0.9;
-          canvasRef.current.setDimensions({
-            width: newWidth,
-            height: newHeight
-          });
-          canvasRef.current.renderAll();
-        }
-      };
+  if (canvasRef.current && boxRef.current) {
+    const canvas = canvasRef.current;
+
+    // old size
+    const oldWidth = canvas.getWidth();
+    const oldHeight = canvas.getHeight();
+
+    // new size based on container
+    const newWidth = boxRef.current.clientWidth * 0.6;
+    const newHeight = boxRef.current.clientHeight * 0.9;
+
+    // scale ratios
+    const scaleX = newWidth / oldWidth;
+    const scaleY = newHeight / oldHeight;
+
+    // resize canvas first
+    canvas.setDimensions({ width: newWidth, height: newHeight });
+
+    // scale all objects
+    canvas.getObjects().forEach(obj => {
+      // scale size
+      obj.scaleX *= scaleX;
+      obj.scaleY *= scaleY;
+
+      // scale position
+      obj.left *= scaleX;
+      obj.top *= scaleY;
+
+      obj.setCoords();
+    });
+
+    canvas.renderAll();
+  }
+};
+
   
       window.addEventListener('resize', handleResize);
 
@@ -305,11 +331,33 @@ const Backendcanvas = ({ save, setSave }) => {
     link.click();
     document.body.removeChild(link);
   };
+  const copyCanvasJoinUrlToClipboard = () => {
+  if (!user || !projectId) {
+    alert("User or projectId missing");
+    return;
+  }
+
+const url = `${import.meta.env.VITE_API_FRONTEND_URL}/joinCanvas/${user.id}/${projectId}`;
+
+
+  navigator.clipboard.writeText(url)
+    .then(() => alert("Copied canvas URL to clipboard!"))
+    .catch(() => alert("Failed to copy canvas URL"));
+};
 
   return (
     <div className="w-screen h-screen relative flex bg-gray-100">
+     {!open &&<FaBars onClick={()=>{
+      setopen(true)
+     }} className="absolute left-2 top-1 z-50" size={24} style={{ cursor: "pointer" }} />}
+     {open && <FaTimes
+      size={24}
+      onClick={()=>{
+      setopen(false)
+     }} className="absolute   z-50"
+    />}
       {/* Left Sidebar */}
-      <div className="w-[20vw] h-full flex flex-col justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
+     {open&& <div className="w-[20vw] z-30 absolute h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
         {/* Main Tools */}
         <div className="flex flex-col h-[45vh] items-center justify-evenly">
           <button
@@ -435,11 +483,11 @@ const Backendcanvas = ({ save, setSave }) => {
             />
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Shapes Panel */}
       {activeTool === "shapes" && (
-        <div className="w-20 h-full flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
+        <div className="w-20 z-50 right-0 absolute h-full sm:relative flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
           <button
             onClick={addRect}
             className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${selectedShape?.type === "rect" ? "bg-blue-600" : "bg-gray-800"
@@ -492,10 +540,14 @@ const Backendcanvas = ({ save, setSave }) => {
         className="flex-1 w-[80vw] h-full flex relative justify-center items-end  bg-radial from-[#A2C2DD] to-[#9DB1DF] p-2"
       >
        
-          <canvas id="main-canvas" className=" rounded-xl" />
+          <canvas id="main-canvas" className=" rounded-xl md:scale-x-130 scale-y-100 scale-x-150 z-20 sm:relative shadow-2xl absolute right-0" />
      
       {save&&<SaveCanvas save={save} setSave={setSave} canvasData={ canvasRef.current?.toJSON()}/>}
       </div>
+        <button className="absolute bg-zinc-700 text-white text-sm p-2 z-50 rounded-2xl right-2 bottom-2
+        " onClick={copyCanvasJoinUrlToClipboard}>
+      Copy link
+    </button>
     </div>
   );
 };

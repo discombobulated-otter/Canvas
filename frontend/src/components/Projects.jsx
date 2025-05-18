@@ -45,15 +45,15 @@ const Projects = ({ setShowProjects }) => {
   }, [user, getToken, navigate]);
 
   return (
-    <div className="absolute mt-2 bg-[#DCE4C9] opacity-85 max-h-[60vh] overflow-y-scroll text-lg font-[boldonse] text-white p-2 rounded-md shadow-lg w-[15vw]">
-      {loading && <p className="text-sm px-2 text-zinc-800">Loading...</p>}
-      {error && <p className="text-sm px-2 text-red-500">{error}</p>}
+    <div className="absolute top-3 right-8 mt-2 bg-[#DCE4C9] sm:left-0 sm:bottom-0 sm:top-10  opacity-85 md:h-[50vh] overflow-y-scroll  text-xs md:text-lg font-[boldonse] text-white px-2 pt-1 rounded-md  shadow-lg w-[20vw] h-[30vh] ">
+      {loading && <p className=" text-xs md:text-lg px-2 text-zinc-800">Loading...</p>}
+      {error && <p className=" text-xs md:text-lgpx-2 text-red-500">{error}</p>}
       {projects.length > 0 ? (
         projects.map((project) => (
           <NavLink
             key={project._id}
             to={`/project/${project._id}`}
-            className="block py-2 hover:bg-[#54B6CA] text-black px-2"
+            className="block mt-2 hover:bg-[#54B6CA] text-zinc-800 px-2"
             onClick={() => setShowProjects(false)}>
             {project.name}
           </NavLink>

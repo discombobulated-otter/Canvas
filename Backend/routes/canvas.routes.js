@@ -1,5 +1,5 @@
 
-import  { GetAllCanvas, GetCanvasWithId } from "../controllers/canvas.controller.js";
+import  {  GetAllCanvas, GetCanvasWithId, JoinCanvas } from "../controllers/canvas.controller.js";
 
 import {verifyClerkAuth} from "../middewares/authenticate.js"
 import express from 'express';
@@ -21,6 +21,13 @@ router.get(
   verifyClerkAuth,
   GetCanvasWithId
 );
+router.get(
+  "/:userId/:projectId/join",
+  requireAuth(),
+  verifyClerkAuth,
+  JoinCanvas
+);
+
 
 
 export default router;

@@ -6,10 +6,11 @@ import connectToDB from './connectDb/connectDb.js';
 import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 
+import { app, server } from './socket.js';
 
 dotenv.config();
 connectToDB();
-const app = express();
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // e.g. http://localhost:5173
+  origin: process.env.FRONTEND_URL, 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -44,6 +45,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

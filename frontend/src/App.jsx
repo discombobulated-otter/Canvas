@@ -1,11 +1,13 @@
-import { Children, cloneElement, isValidElement, useState } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useState } from "react";
 import Home from "./components/Home";
 import NavBar from "./components/Navbar";
 import { AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import {io} from "socket.io-client"
 
 function App({children}) {
-
+ 
+ 
 const location = useLocation();
 
   
@@ -18,7 +20,7 @@ const location = useLocation();
   
   return (
     
-  <div className="w-screen h-screen overflow-hidden">
+  <div className="w-screen h-screen ">
       <NavBar save={save} setSave={setSave} />
       <AnimatePresence  >
       {enhancedChildren}

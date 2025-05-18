@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas, Rect, Circle, Triangle, Line, Textbox, PencilBrush, ActiveSelection } from "fabric";
 import { CiPen, CiText } from "react-icons/ci";
-import { FaCircle, FaShapes, FaSquare, FaHandPaper, FaDownload, FaTrash, FaSave } from "react-icons/fa";
+import { FaCircle, FaShapes, FaSquare, FaHandPaper, FaDownload, FaTrash, FaSave, FaTimes, FaBars } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 import { PiLineSegmentFill } from "react-icons/pi";
 import { SketchPicker } from "react-color";
 import {  useSession, useUser } from "@clerk/clerk-react"
-import SaveCanvas from "./SaveCanvas";
+import SaveCanvas from "./SaveCanvas.jsx";
 import { useNavigate } from "react-router-dom";
 
 import { motion } from 'framer-motion';
 const CanvasComp = ({ save, setSave }) => {
   const canvasRef = useRef(null);
+  const [open, setopen] = useState(false)
   const [activeTool, setActiveTool] = useState(null);
   const [selectedColor, setSelectedColor] = useState("#ff0000");
   const [selectedShape, setSelectedShape] = useState(null);
@@ -126,16 +127,41 @@ const CanvasComp = ({ save, setSave }) => {
 
     // Handle window resize
     const handleResize = () => {
-      if (canvasRef.current) {
-        const newWidth = boxRef.current.clientWidth * 0.6;
-        const newHeight = boxRef.current.clientHeight * 0.9;
-        canvasRef.current.setDimensions({
-          width: newWidth,
-          height: newHeight
-        });
-        canvasRef.current.renderAll();
-      }
-    };
+  if (canvasRef.current && boxRef.current) {
+    const canvas = canvasRef.current;
+
+    // old size
+    const oldWidth = canvas.getWidth();
+    const oldHeight = canvas.getHeight();
+
+    // new size based on container
+    const newWidth = boxRef.current.clientWidth * 0.6;
+    const newHeight = boxRef.current.clientHeight * 0.9;
+
+    // scale ratios
+    const scaleX = newWidth / oldWidth;
+    const scaleY = newHeight / oldHeight;
+
+    // resize canvas first
+    canvas.setDimensions({ width: newWidth, height: newHeight });
+
+    // scale all objects
+    canvas.getObjects().forEach(obj => {
+      // scale size
+      obj.scaleX *= scaleX;
+      obj.scaleY *= scaleY;
+
+      // scale position
+      obj.left *= scaleX;
+      obj.top *= scaleY;
+
+      obj.setCoords();
+    });
+
+    canvas.renderAll();
+  }
+};
+
 
     window.addEventListener('resize', handleResize);
 
@@ -313,138 +339,148 @@ const CanvasComp = ({ save, setSave }) => {
 
   return (
     <motion.div initial={{ x: 1000 }} animate={{ x: 0, transition: { type: "easeInOut", duration:0.5 } }} className="w-screen h-screen relative flex ">
+       {!open &&<FaBars onClick={()=>{
+            setopen(true)
+           }} className="absolute left-2 top-1 z-50" size={24} style={{ cursor: "pointer" }} />}
+           {open && <FaTimes
+            size={24}
+            onClick={()=>{
+            setopen(false)
+           }} className="absolute left-1 top-0.5 z-50"
+            style={{ cursor: "pointer", position: "absolute", top: 10, right: 10 }}
+          />}
       {/* Left Sidebar */}
-      <div className="w-[20vw] h-screen flex flex-col justify-evenly items-center   bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
-        {/* Main Tools */}
-        <div className="flex flex-col h-[45vh] items-center justify-evenly">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleMoveMode();
-            }}
-            className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${isMoving ? "bg-blue-600" : "bg-gray-800"
-              } shadow-md`}
-          >
-            <FaHandPaper
-              className={`text-xl ${isMoving ? "text-white" : "text-gray-300"}`}
-            />
-          </button>
-
-          {/* Delete Button - Only show when an object is selected */}
-          {showDeleteButton && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteSelectedObject();
-              }}
-              className="p-3 rounded-xl transition-all duration-200 hover:bg-red-600 hover:scale-110 bg-gray-800 shadow-md"
-            >
-              <FaTrash className="text-xl text-gray-300" />
-            </button>
-          )}
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTool("shapes");
-            }}
-            className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "shapes" ? "bg-blue-600" : "bg-gray-800"
-              } shadow-md`}
-          >
-            <FaShapes
-              className={`text-xl ${activeTool === "shapes" ? "text-white" : "text-gray-300"
-                }`}
-            />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTool("pen");
-            }}
-            className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "pen" ? "bg-blue-600" : "bg-gray-800"
-              } shadow-md`}
-          >
-            <CiPen
-              className={`text-xl ${activeTool === "pen" ? "text-white" : "text-gray-300"
-                }`}
-            />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (activeTool !== "text") {
-                setActiveTool("text");
-                addText();
-              } else {
-                setActiveTool(null);
-              }
-            }}
-            className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "text" ? "bg-blue-600" : "bg-gray-800"
-              } shadow-md`}
-          >
-            <CiText
-              className={`text-xl ${activeTool === "text" ? "text-white" : "text-gray-300"
-                }`}
-            />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload();
-            }}
-            className="p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 bg-gray-800 shadow-md"
-          >
-            <FaDownload className="text-xl text-gray-300" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSave(true);
-            }}
-            className="p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 bg-gray-800 shadow-md"
-          >
-            <FaSave className="text-xl text-gray-300" />
-          </button>
-        </div>
-
-        {/* Color Picker */}
-        <div className="  w-full h-[50vh] flex  justify-between ">
-          <div className="w-full h-full flex justify-center  rounded-lg  overflow-visible">
-            <SketchPicker
-              className="w-full   "
-              color={selectedColor}
-              onChange={(color) => {
-                setSelectedColor(color.hex);
-                const canvas = canvasRef.current;
-
-                if (canvas.isDrawingMode) {
-                  canvas.freeDrawingBrush.color = color.hex;
-                }
-
-                if (selectedShape != null) {
-                  if (selectedShape.type === "line") {
-                    selectedShape.set("stroke", color.hex);
-                  } else if (selectedShape === "canvas") {
-                    canvas.backgroundColor = color.hex;
-                    canvas.renderAll();
-                  } else {
-                    selectedShape.set("fill", color.hex);
-                  }
-                  canvas.renderAll();
-                }
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      {open&& <div className="w-[20vw] z-30 absolute h-full flex flex-col sm:relative justify-between items-center py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white shadow-lg">
+             {/* Main Tools */}
+             <div className="flex flex-col h-[45vh] items-center justify-evenly">
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   toggleMoveMode();
+                 }}
+                 className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${isMoving ? "bg-blue-600" : "bg-gray-800"
+                   } shadow-md`}
+               >
+                 <FaHandPaper
+                   className={`text-xl ${isMoving ? "text-white" : "text-gray-300"}`}
+                 />
+               </button>
+     
+               {/* Delete Button - Only show when an object is selected */}
+               {showDeleteButton && (
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     deleteSelectedObject();
+                   }}
+                   className="p-3 rounded-xl transition-all duration-200 hover:bg-red-600 hover:scale-110 bg-gray-800 shadow-md"
+                 >
+                   <FaTrash className="text-xl text-gray-300" />
+                 </button>
+               )}
+     
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   toggleTool("shapes");
+                 }}
+                 className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "shapes" ? "bg-blue-600" : "bg-gray-800"
+                   } shadow-md`}
+               >
+                 <FaShapes
+                   className={`text-xl ${activeTool === "shapes" ? "text-white" : "text-gray-300"
+                     }`}
+                 />
+               </button>
+     
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   toggleTool("pen");
+                 }}
+                 className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "pen" ? "bg-blue-600" : "bg-gray-800"
+                   } shadow-md`}
+               >
+                 <CiPen
+                   className={`text-xl ${activeTool === "pen" ? "text-white" : "text-gray-300"
+                     }`}
+                 />
+               </button>
+     
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   if (activeTool !== "text") {
+                     setActiveTool("text");
+                     addText();
+                   } else {
+                     setActiveTool(null);
+                   }
+                 }}
+                 className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${activeTool === "text" ? "bg-blue-600" : "bg-gray-800"
+                   } shadow-md`}
+               >
+                 <CiText
+                   className={`text-xl ${activeTool === "text" ? "text-white" : "text-gray-300"
+                     }`}
+                 />
+               </button>
+     
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   handleDownload();
+                 }}
+                 className="p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 bg-gray-800 shadow-md"
+               >
+                 <FaDownload className="text-xl text-gray-300" />
+               </button>
+     
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                  setSave(true);
+                 }}
+                 className="p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 bg-gray-800 shadow-md"
+               >
+                 <FaSave className="text-xl text-gray-300" />
+               </button>
+             </div>
+     
+             {/* Color Picker */}
+             <div className="  w-full h-[50vh] flex  justify-between ">
+               <div className="w-full h-full flex justify-center  rounded-lg  overflow-visible">
+                 <SketchPicker
+                   className="w-full h-full "
+                   color={selectedColor}
+                   onChange={(color) => {
+                     setSelectedColor(color.hex);
+                     const canvas = canvasRef.current;
+     
+                     if (canvas.isDrawingMode) {
+                       canvas.freeDrawingBrush.color = color.hex;
+                     }
+     
+                     if (selectedShape != null) {
+                       if (selectedShape.type === "line") {
+                         selectedShape.set("stroke", color.hex);
+                       } else if (selectedShape === "canvas") {
+                         canvas.backgroundColor = color.hex;
+                         canvas.renderAll();
+                       } else {
+                         selectedShape.set("fill", color.hex);
+                       }
+                       canvas.renderAll();
+                     }
+                   }}
+                 />
+               </div>
+             </div>
+           </div>}
 
       {/* Shapes Panel */}
       {activeTool === "shapes" && (
-        <div className="w-20 h-full flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
+        <div className="w-20 h-full absolute right-0 z-30 sm:relative flex flex-col items-center justify-center gap-3 py-6 bg-gradient-to-b from-[#9491E2] to-[#A6D2DB] text-white ">
           <button
             onClick={addRect}
             className={`p-3 rounded-xl transition-all duration-200 hover:bg-gray-700 hover:scale-110 ${selectedShape?.type === "rect" ? "bg-blue-600" : "bg-gray-800"
@@ -497,7 +533,7 @@ const CanvasComp = ({ save, setSave }) => {
         className="flex-1 w-[80vw] h-full flex relative justify-center items-end  bg-radial from-[#A2C2DD] to-[#9DB1DF]  p-2"
       >
 
-        <motion.canvas initial={{ opacity: 0 }} animate={{ opacity: 1 }} id="my-canvas" className="w-full  border-2 shadow-2xl rounded-xl" />
+        <motion.canvas initial={{ opacity: 0 }} animate={{ opacity: 1 }} id="my-canvas" className="w-full md:scale-x-130 scale-y-100 scale-x-150  border-2 shadow-2xl rounded-xl" />
 
         {save && <SaveCanvas save={save} setSave={setSave} canvasData={canvasRef.current?.toJSON()} />}
       </div>
