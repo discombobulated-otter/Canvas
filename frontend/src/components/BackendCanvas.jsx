@@ -7,7 +7,7 @@ import { PiLineSegmentFill } from "react-icons/pi";
 import { SketchPicker } from "react-color";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { useAuth, useUser } from "@clerk/clerk-react";
+// import { useAuth, useUser } from "@clerk/clerk-react";
 import SaveCanvas from "./SaveCanvas.jsx";
 
 const Backendcanvas = ({ save, setSave }) => {
@@ -20,8 +20,8 @@ const Backendcanvas = ({ save, setSave }) => {
   const [isMoving, setIsMoving] = useState(false);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const projectId = useParams().id;
-  const { user } = useUser();
-  const { getToken } = useAuth();
+  // const { user } = useUser();
+  // const { getToken } = useAuth();
 
  
   // Initialize or reload the canvas with JSON data

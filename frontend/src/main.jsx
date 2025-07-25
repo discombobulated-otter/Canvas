@@ -11,16 +11,16 @@ import Backendcanvas from './components/BackendCanvas.jsx';
 import JoinCanvas from './components/JoinCanvas.jsx';
 import { AnimatePresence } from 'framer-motion';
 import { SocketProvider } from './contextProvider/SocketProvider.jsx';
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-console.log(PUBLISHABLE_KEY);
+// const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+// console.log(PUBLISHABLE_KEY);
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key")
-}
+// if (!PUBLISHABLE_KEY) {
+//   throw new Error("Missing Publishable Key")
+// }
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <SocketProvider>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" >
+    {/* <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/" > */}
 
       <Router>
         <Routes>
@@ -39,7 +39,7 @@ createRoot(document.getElementById('root')).render(
         </Routes>
       </Router>
 
-    </ClerkProvider>
+    {/* </ClerkProvider> */}
     </SocketProvider>
   </StrictMode>,
 )

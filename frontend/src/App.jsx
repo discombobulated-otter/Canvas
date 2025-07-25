@@ -11,7 +11,7 @@ function App({children}) {
 const location = useLocation();
 
   
-  const [save, setSave] = useState(false);
+  const [save, setSave] = useState(false); 
   const enhancedChildren = Children.map(children, (child) =>
     isValidElement(child)
       ? cloneElement(child, { key: location.pathname, save, setSave })  // move save/setSave here
@@ -20,8 +20,8 @@ const location = useLocation();
   
   return (
     
-  <div className="w-screen h-screen ">
-      <NavBar save={save} setSave={setSave} />
+  <div className="w-screen h-screen bg-red-800 overflow-hidden ">
+      {/* <NavBar save={save} setSave={setSave} />÷ */}
       <AnimatePresence  >
       {enhancedChildren}
       </AnimatePresence>

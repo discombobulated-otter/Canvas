@@ -1,55 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import {
-  RedirectToSignIn,
-  SignedIn, SignedOut, SignInButton,
-  useAuth, UserButton, useSession, useUser
-} from "@clerk/clerk-react";
+// import {
+//   RedirectToSignIn,
+//   SignedIn, SignedOut, SignInButton,
+//   useAuth, UserButton, useSession, useUser
+// } from "@clerk/clerk-react";
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import {  AnimatePresence } from 'framer-motion';
 import Projects from './Projects';
 import { motion } from 'framer-motion';
 const NavBar = ({ save, setSave }) => {
-  const { isSignedIn, getToken } = useAuth();
+  // const { isSignedIn, getToken } = useAuth();
   const [showProjects, setShowProjects] = useState(false);
-  const { session, isLoaded: isSessionLoaded } = useSession();
-  const { user } = useUser();
+  // const { session, isLoaded: isSessionLoaded } = useSession();
+  // const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const syncUser = async () => {
-      if (!isSignedIn || !user || !isSessionLoaded || !session) {
-        return; 
-      }
-
-      try {
-        const token = await getToken(); 
-
-        const payload = {
-          id: user.id,
-          name: user.fullName,
-          email: user.primaryEmailAddress?.emailAddress,
-          imageUrl: user.imageUrl,
-        };
+  // useEffect(() => {
+  //   const syncUser = async () => {
+  //     if (!isSignedIn || !user || !isSessionLoaded || !session) {
   
-        const response=await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log(response);
-      } catch (err) {
-        console.error("Failed to sync user:", err);
-      }
-    };
+  //       return; 
+  //     }
 
-    syncUser();
-  }, [isSignedIn, user, session, isSessionLoaded, getToken]);
+  //     try {
+  //       const token = await getToken(); 
+
+  //       const payload = {
+  //         id: user.id,
+  //         name: user.fullName,
+  //         email: user.primaryEmailAddress?.emailAddress,
+  //         imageUrl: user.imageUrl,
+  //       };
+  
+  //       const response=await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       });
+  //       console.log(response);
+  //     } catch (err) {
+  //       console.error("Failed to sync user:", err);
+  //     }
+  //   };
+
+  //   syncUser();
+  // }, [isSignedIn, user, session, isSessionLoaded, getToken]);
 
   // Render the navbar with redirect if not signed in
-  if (!isSignedIn) {
-    return <RedirectToSignIn />; // Redirect user to sign-in if not signed in
-  }
+  // if (!isSignedIn) {
+  //   return <RedirectToSignIn />; // Redirect user to sign-in if not signed in
+  // }
 
   return (
    <div className="fixed w-screen z-50 flex flex-col items-center ">
