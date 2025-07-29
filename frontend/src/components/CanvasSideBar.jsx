@@ -11,6 +11,7 @@ import { IoTriangle } from "react-icons/io5";
 import { PiLineSegmentFill } from "react-icons/pi";
 import { SketchPicker } from "react-color";
 import { Tooltip } from "react-tooltip"; // If using tooltips
+// import ShapeMenu from "./ShapeMenu.jsx"; // add at top
 
 const CanvasSidebar = ({
   canvasRef,
@@ -56,27 +57,28 @@ const CanvasSidebar = ({
           onClick={(e) => {
             e.stopPropagation();
             deleteSelectedObject();
+            }}
+            className={buttonStyle(false)}
+            title="Delete"
+          >
+            <FaTrash size={18} />
+          </button>
+          )}
+
+          {/* Pen Tool */}
+          <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePenTool();
           }}
-          className={buttonStyle(false)}
-          title="Delete"
-        >
-          <FaTrash size={18} />
-        </button>
-      )}
+          className={buttonStyle(activeTool === "pen")}
+          title="Pen Tool"
+          >
+          <CiPen size={22} />
+          </button>
 
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setActiveTool("pen");
-        }}
-        className={buttonStyle(activeTool === "pen")}
-        title="Pen Tool"
-      >
-        <CiPen size={22} />
-      </button>
-
-      <button
-        onClick={(e) => {
+          <button
+          onClick={(e) => {
           e.stopPropagation();
           setActiveTool("text");
           addText();

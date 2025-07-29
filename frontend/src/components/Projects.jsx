@@ -1,65 +1,81 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth } from '@clerk/clerk-react';
+import { RedirectToSignIn } from '@clerk/clerk-react';
+import { motion } from 'framer-motion';
 
-const Projects = ({ setShowProjects }) => {
+const Projects = () => {
+  // const { isSignedIn, user, session, isLoaded: isSessionLoaded, getToken } = useAuth();
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);  // to show a loading state
-  const [error, setError] = useState(null);      // for error messages
-  const { user } = useUser();
-  const { getToken } = useAuth();
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  // Fetch the projects once the user is authenticated
-  useEffect(() => {
-    if (!user) {
-      navigate('/', { replace: true });  // Redirect if no user
-      return;
-    }
+  // useEffect(() => {
+  //   const syncUser = async () => {
+  //     if (!isSignedIn || !user || !isSessionLoaded || !session) return;
 
-    const fetchProjects = async () => {
-      setLoading(true);
-      const token = await getToken(); // Fetch token
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/canvas/${user.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,  // or use Clerk's token
-          },
-          withCredentials: true,
-        });
-        
-        if (response.data.success) {
-          setProjects(response.data.canvases);  // Set projects data
-        } else {
-          setError("No canvases found");  // Handle no canvases response
-        }
-      } catch (err) {
-        setError("Error fetching projects: " + err.message);  // Handle errors
-      } finally {
-        setLoading(false);  // Stop loading
-      }
-    };
+  //     try {
+  //       const token = await getToken();
 
-    fetchProjects();  // Trigger fetching
-  }, [user, getToken, navigate]);
+  //       const payload = {
+  //         id: user.id,
+  //         name: user.fullName,
+  //         email: user.primaryEmailAddress?.emailAddress,
+  //         imageUrl: user.imageUrl,
+  //       };
+
+  //       // Sync user info
+  //       await axios.post(`${import.meta.env.VITE_API_URL}/api/user/sign`, payload, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       // Fetch user projects
+  //       const projectRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/projects`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       setProjects(projectRes.data);
+  //       setLoading(false);
+  //     } catch (err) {
+  //       console.error("Failed to sync user or fetch projects:", err);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   syncUser();
+  // }, [isSignedIn, user, session, isSessionLoaded, getToken]);
+
+  // if (!isSignedIn) return <RedirectToSignIn />;
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full bg-[#121212] flex items-center justify-center text-white text-2xl">
+        Loading projects...
+      </div>
+    );
+  }
 
   return (
-    <div className="absolute top-3 right-8 mt-2 bg-[#DCE4C9] sm:left-0 sm:bottom-0 sm:top-10  opacity-85 md:h-[50vh] overflow-y-scroll  text-xs md:text-lg font-[boldonse] text-white px-2 pt-1 rounded-md  shadow-lg w-[20vw] h-[30vh] ">
-      {loading && <p className=" text-xs md:text-lg px-2 text-zinc-800">Loading...</p>}
-      {error && <p className=" text-xs md:text-lgpx-2 text-red-500">{error}</p>}
-      {projects.length > 0 ? (
-        projects.map((project) => (
-          <NavLink
-            key={project._id}
-            to={`/project/${project._id}`}
-            className="block mt-2 hover:bg-[#54B6CA] text-zinc-800 px-2"
-            onClick={() => setShowProjects(false)}>
-            {project.name}
-          </NavLink>
-        ))
+    <div className="min-h-screen bg-[#121212] text-white p-8">
+      <h1 className="text-4xl font-bold mb-8">Your Projects</h1>
+
+      {projects.length === 0 ? (
+        <p className="text-gray-400">No projects found. Start by creating one!</p>
       ) : (
-        !loading && <p className="text-sm px-2 text-zinc-700">No projects found</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {projects.map((project, i) => (
+            <motion.div
+              key={project._id || i}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-[#1e1e1e] p-6 rounded-xl shadow-md border border-[#2e2e2e] hover:border-[#7EA5F6]"
+            >
+              <h2 className="text-xl font-semibold mb-2">{project.name}</h2>
+              <p className="text-sm text-gray-400 mb-2">{project.description || 'No description provided.'}</p>
+              <p className="text-xs text-gray-500">Last updated: {new Date(project.updatedAt).toLocaleString()}</p>
+            </motion.div>
+          ))}
+        </div>
       )}
     </div>
   );

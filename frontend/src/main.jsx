@@ -10,6 +10,7 @@ import CanvasComp from './components/Canvas.jsx';
 import Backendcanvas from './components/BackendCanvas.jsx';
 import JoinCanvas from './components/JoinCanvas.jsx';
 import { AnimatePresence } from 'framer-motion';
+import Projects from "./components/Projects.jsx";
 import { SocketProvider } from './contextProvider/SocketProvider.jsx';
 // const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 // console.log(PUBLISHABLE_KEY);
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/' element={<App><Home /></App>} />
           <Route path='/canvas' element={<App><CanvasComp /></App>} />
           <Route path='/project/:id' element={<App><Backendcanvas /></App>} />
+          <Route path='/projects' element={<App><Projects/></App>} />
           <Route
             path="/joinCanvas/:userId/:projectId"
             element={

@@ -574,3 +574,4 @@ useEffect(() => {
 };
 
 export default JoinCanvas;
+

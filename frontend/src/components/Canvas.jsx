@@ -12,18 +12,19 @@ import {
 import SaveCanvas from "./SaveCanvas.jsx";
 import { motion } from "framer-motion";
 import CanvasSidebar from "./CanvasSideBar.jsx";
+import ShapeMenu from "./ShapeMenu.jsx";
 
 const CanvasComp = ({ save, setSave }) => {
     const canvasRef = useRef(null);
     const miniMapRef = useRef(null);
     const [activeTool, setActiveTool] = useState(null);
-    const [selectedColor, setSelectedColor] = useState("#ff0000");
+    const [selectedColor, setSelectedColor] = useState("#ffffff");
     const [selectedShape, setSelectedShape] = useState(null);
     const [isMoving, setIsMoving] = useState(false);
     const [showDeleteButton, setShowDeleteButton] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(1);
     const boxRef = useRef();
-    const defaultColor = "#ffffff"; 
+    const defaultColor = "#ffffff"; // White for black background
 
     const updateMiniMap = () => {
         const canvas = canvasRef.current;
@@ -57,7 +58,7 @@ const CanvasComp = ({ save, setSave }) => {
         const canvas = new Canvas("my-canvas", {
             width: canvasWidth,
             height: canvasHeight,
-            backgroundColor: "#16161E",
+            backgroundColor: "rgb(26, 26, 26)",
             isDrawingMode: false,
             preserveObjectStacking: true,
             selection: true,
@@ -108,17 +109,12 @@ const CanvasComp = ({ save, setSave }) => {
             canvas.selection = true;
         });
 
-        // const rect = new Rect({
-        //     left: 100,
-        //     top: 100,
-        //     fill: "#ffffff",
-        //     width: 200,
-        //     height: 100,
-        // });
-        // canvas.add(rect);
-        updateMiniMap();
-
         canvas.on("mouse:down", (options) => {
+            // If in drawing mode, don't interfere with drawing
+            if (canvas.isDrawingMode) {
+                return;
+            }
+
             if (options.target) {
                 const activeObject = canvas.getActiveObject();
 
@@ -179,15 +175,26 @@ const CanvasComp = ({ save, setSave }) => {
             updateMiniMap();
         });
 
+        // Add event listener for when drawing paths are completed
+        canvas.on("path:created", (e) => {
+            const path = e.path;
+            path.set({
+                stroke: "#ffffff", // Ensure drawn paths are white
+                strokeWidth: 3,
+            });
+            canvas.renderAll();
+            updateMiniMap();
+        });
+
         const handleKeyDown = (e) => {
-            if (
-                (e.key === "Delete" || e.key === "Backspace") &&
-                selectedShape
-            ) {
+            if ((e.key === "Delete" || e.key === "Backspace") && selectedShape) {
                 deleteSelectedObject();
             }
             if (e.key === "r") {
                 resetZoom();
+            }
+            if (e.key === "Escape" && canvas.isDrawingMode) {
+                exitDrawingMode();
             }
         };
 
@@ -216,6 +223,8 @@ const CanvasComp = ({ save, setSave }) => {
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("resize", handleResize);
 
+        updateMiniMap();
+
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("resize", handleResize);
@@ -233,11 +242,40 @@ const CanvasComp = ({ save, setSave }) => {
             canvas.selection = false;
             canvas.defaultCursor = "move";
             canvas.hoverCursor = "move";
+            setActiveTool("move");
         } else {
             canvas.selection = true;
             canvas.defaultCursor = "default";
             canvas.hoverCursor = "default";
+            setActiveTool(null);
         }
+    };
+
+    const handlePenTool = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        setActiveTool("pen");
+        canvas.isDrawingMode = true;
+        canvas.selection = false; // Disable selection while drawing
+        canvas.freeDrawingBrush = new PencilBrush(canvas);
+        canvas.freeDrawingBrush.color = "#ffffff"; // White color for black background
+        canvas.freeDrawingBrush.width = 3; // Slightly thicker for better visibility
+        
+        // Update cursor
+        canvas.defaultCursor = "crosshair";
+        canvas.hoverCursor = "crosshair";
+    };
+
+    const exitDrawingMode = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        canvas.isDrawingMode = false;
+        canvas.selection = true;
+        canvas.defaultCursor = "default";
+        canvas.hoverCursor = "default";
+        setActiveTool(null);
     };
 
     const resetZoom = () => {
@@ -267,7 +305,7 @@ const CanvasComp = ({ save, setSave }) => {
         const canvas = canvasRef.current;
         const circle = new Circle({
             radius: 50,
-            fill:defaultColor,
+            fill: defaultColor,
             top: canvas.height * Math.random(),
             left: canvas.width * Math.random(),
         });
@@ -281,7 +319,7 @@ const CanvasComp = ({ save, setSave }) => {
         const triangle = new Triangle({
             width: 100,
             height: 100,
-            fill: defaultColour,
+            fill: defaultColor,
             top: canvas.height * Math.random(),
             left: canvas.width * Math.random(),
         });
@@ -293,7 +331,7 @@ const CanvasComp = ({ save, setSave }) => {
     const addLine = () => {
         const canvas = canvasRef.current;
         const line = new Line([50, 50, 200, 200], {
-            stroke: selectedColor,
+            stroke: "#ffffff", // White line for black background
             strokeWidth: 3,
             selectable: true,
             evented: true,
@@ -310,11 +348,16 @@ const CanvasComp = ({ save, setSave }) => {
         const text = new Textbox("Type here", {
             width: 200,
             fontSize: 24,
-            fill: "#000000",
+            fill: "#ffffff", // White text for black background
             left: canvas.width / 2 - 100,
             top: canvas.height / 2 - 50,
             selectable: true,
             hasControls: true,
+            hasBorders: true,
+            borderColor: "#ffffff",
+            cornerColor: "#ffffff",
+            cornerSize: 6,
+            transparentCorners: false,
         });
 
         text.on("mousedown", (e) => setSelectedShape(e.target));
@@ -333,9 +376,7 @@ const CanvasComp = ({ save, setSave }) => {
         const canvas = canvasRef.current;
         if (selectedShape && selectedShape !== "canvas") {
             if (selectedShape.type === "activeSelection") {
-                selectedShape.getObjects().forEach((obj) =>
-                    canvas.remove(obj)
-                );
+                selectedShape.getObjects().forEach((obj) => canvas.remove(obj));
             } else {
                 canvas.remove(selectedShape);
             }
@@ -383,7 +424,10 @@ const CanvasComp = ({ save, setSave }) => {
                 addTriangle={addTriangle}
                 addLine={addLine}
                 addText={addText}
+                handlePenTool={handlePenTool}
+                exitDrawingMode={exitDrawingMode}
             />
+
             <div ref={boxRef} className="flex-1 relative bg-gray-800">
                 <motion.canvas
                     initial={{ opacity: 0 }}
@@ -391,10 +435,19 @@ const CanvasComp = ({ save, setSave }) => {
                     id="my-canvas"
                     className="absolute top-0 left-0 w-full h-full"
                 />
+
+                {selectedShape && (
+                    <ShapeMenu
+                        canvasRef={canvasRef}
+                        selectedShape={selectedShape}
+                    />
+                )}
+
                 <canvas
                     ref={miniMapRef}
                     className="absolute bottom-4 right-4 w-40 h-40 border border-gray-400 bg-gray shadow-md rounded"
                 />
+
                 {save && (
                     <SaveCanvas
                         save={save}
